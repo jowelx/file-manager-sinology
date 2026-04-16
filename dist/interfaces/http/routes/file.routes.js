@@ -4,6 +4,7 @@ import { validateJsonMiddleware } from "../middleware/validate-json.middleware.j
 export function createFileRouter(fileController) {
     const router = Router();
     router.get("/", fileController.listDirectory);
+    router.get("/content", fileController.readFileContent);
     router.post("/folder", validateJsonMiddleware, fileController.createFolder);
     router.post("/upload", uploadMiddleware.single("file"), fileController.uploadFile);
     router.patch("/rename", validateJsonMiddleware, fileController.renameItem);

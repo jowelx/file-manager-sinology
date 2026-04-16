@@ -23,7 +23,7 @@ async function bootstrap(): Promise<void> {
         console.error("Storage root initialization failed", error);
     }
 
-    const app = createApp(absoluteStorageRoot);
+    const app = createApp(absoluteStorageRoot, { apiKey: env.apiKey });
     app.listen(env.port, () => {
         console.log(`File manager server listening on port ${env.port}`);
         console.log(`Storage root: ${absoluteStorageRoot}`);

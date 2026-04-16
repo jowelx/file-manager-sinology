@@ -15,6 +15,23 @@ export class FileController {
             next(error);
         }
     };
+    readFileContent = async (request, response, next) => {
+        try {
+            const targetPath = typeof request.query.path === "string" ? request.query.path : "";
+            const disposition = request.query.disposition === "attachment" ? "attachment" : "inline";
+            const fileContent = await this.dependencies.readFileContentUseCase.execute({
+                path: targetPath,
+            });
+            response.type(fileContent.name);
+            response.setHeader("Content-Length", String(fileContent.size));
+            response.setHeader("Content-Disposition", `${disposition}; filename*=UTF-8''${encodeURIComponent(fileContent.name)}`);
+            fileContent.stream.on("error", next);
+            fileContent.stream.pipe(response);
+        }
+        catch (error) {
+            next(error);
+        }
+    };
     createFolder = async (request, response, next) => {
         try {
             const folder = await this.dependencies.createFolderUseCase.execute({

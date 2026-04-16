@@ -7,6 +7,7 @@ export function createFileRouter(fileController: FileController): Router {
     const router = Router();
 
     router.get("/", fileController.listDirectory);
+    router.get("/content", fileController.readFileContent);
     router.post("/folder", validateJsonMiddleware, fileController.createFolder);
     router.post(
         "/upload",

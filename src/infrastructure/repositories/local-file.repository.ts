@@ -1,9 +1,11 @@
+import { createReadStream } from "fs";
 import fs from "fs/promises";
 import path from "path";
 import { FileItem } from "../../domain/entities/file-item.entity.js";
 import { InvalidInputError } from "../../domain/errors/invalid-input.error.js";
 import { FileRepositoryPort } from "../../domain/ports/file-repository.port.js";
 import { UploadedFileData } from "../../shared/types/uploaded-file-data.type.js";
+import { StoredFileContent } from "../../shared/types/stored-file-content.type.js";
 import { PathSecurityService } from "../../application/services/path-security.service.js";
 import { FileItemMapper } from "../mappers/file-item.mapper.js";
 
@@ -51,6 +53,17 @@ export class LocalFileRepository implements FileRepositoryPort {
 
             throw error;
         }
+    }
+
+    async openReadStream(relativePath: string): Promise<StoredFileContent> {
+        const absolutePath = this.resolveAbsolutePath(relativePath);
+        const stats = await fs.stat(absolutePath);
+
+        return {
+            name: this.pathSecurityService.getItemName(relativePath),
+            size: stats.size,
+            stream: createReadStream(absolutePath),
+        };
     }
 
     async createFolder(parentRelativePath: string, folderName: string): Promise<FileItem> {

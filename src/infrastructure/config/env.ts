@@ -15,4 +15,5 @@ function parsePort(value: string | undefined): number {
 export const env = {
     port: parsePort(process.env.PORT),
     storageRoot: (process.env.STORAGE_ROOT ?? "storage").trim() || "storage",
+    apiKey: (process.env.API_KEY ?? "").trim() || null,
 };

@@ -1,3 +1,4 @@
+import { createReadStream } from "fs";
 import fs from "fs/promises";
 import { InvalidInputError } from "../../domain/errors/invalid-input.error.js";
 import { FileItemMapper } from "../mappers/file-item.mapper.js";
@@ -37,6 +38,15 @@ export class LocalFileRepository {
             }
             throw error;
         }
+    }
+    async openReadStream(relativePath) {
+        const absolutePath = this.resolveAbsolutePath(relativePath);
+        const stats = await fs.stat(absolutePath);
+        return {
+            name: this.pathSecurityService.getItemName(relativePath),
+            size: stats.size,
+            stream: createReadStream(absolutePath),
+        };
     }
     async createFolder(parentRelativePath, folderName) {
         const folderRelativePath = this.pathSecurityService.joinRelativePath(parentRelativePath, folderName);

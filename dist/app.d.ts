@@ -1,1 +1,6 @@
-export declare function createApp(storageRoot: string): import("express-serve-static-core").Express;
+import { Express } from "express";
+interface AppSecurityOptions {
+    apiKey: string | null;
+}
+export declare function createApp(storageRoot: string, securityOptions: AppSecurityOptions): Express;
+export {};

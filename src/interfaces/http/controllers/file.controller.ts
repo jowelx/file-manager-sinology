@@ -3,6 +3,7 @@ import { CreateFolderUseCase } from "../../../application/use-cases/create-folde
 import { DeleteItemUseCase } from "../../../application/use-cases/delete-item.use-case.js";
 import { ListDirectoryUseCase } from "../../../application/use-cases/list-directory.use-case.js";
 import { MoveItemUseCase } from "../../../application/use-cases/move-item.use-case.js";
+import { ReadFileContentUseCase } from "../../../application/use-cases/read-file-content.use-case.js";
 import { RenameItemUseCase } from "../../../application/use-cases/rename-item.use-case.js";
 import { UploadFileUseCase } from "../../../application/use-cases/upload-file.use-case.js";
 import { InvalidInputError } from "../../../domain/errors/invalid-input.error.js";
@@ -15,6 +16,7 @@ interface FileControllerDependencies {
     deleteItemUseCase: DeleteItemUseCase;
     moveItemUseCase: MoveItemUseCase;
     listDirectoryUseCase: ListDirectoryUseCase;
+    readFileContentUseCase: ReadFileContentUseCase;
 }
 
 export class FileController {
@@ -32,6 +34,32 @@ export class FileController {
             response.json(
                 FilePresenter.success("Directory listed successfully", { items }),
             );
+        } catch (error) {
+            next(error);
+        }
+    };
+
+    readFileContent = async (
+        request: Request,
+        response: Response,
+        next: NextFunction,
+    ): Promise<void> => {
+        try {
+            const targetPath = typeof request.query.path === "string" ? request.query.path : "";
+            const disposition = request.query.disposition === "attachment" ? "attachment" : "inline";
+            const fileContent = await this.dependencies.readFileContentUseCase.execute({
+                path: targetPath,
+            });
+
+            response.type(fileContent.name);
+            response.setHeader("Content-Length", String(fileContent.size));
+            response.setHeader(
+                "Content-Disposition",
+                `${disposition}; filename*=UTF-8''${encodeURIComponent(fileContent.name)}`,
+            );
+
+            fileContent.stream.on("error", next);
+            fileContent.stream.pipe(response);
         } catch (error) {
             next(error);
         }

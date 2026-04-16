@@ -1,6 +1,7 @@
 import { FileItem } from "../../domain/entities/file-item.entity.js";
 import { FileRepositoryPort } from "../../domain/ports/file-repository.port.js";
 import { UploadedFileData } from "../../shared/types/uploaded-file-data.type.js";
+import { StoredFileContent } from "../../shared/types/stored-file-content.type.js";
 import { PathSecurityService } from "../../application/services/path-security.service.js";
 export declare class LocalFileRepository implements FileRepositoryPort {
     private readonly storageRoot;
@@ -8,6 +9,7 @@ export declare class LocalFileRepository implements FileRepositoryPort {
     constructor(storageRoot: string, pathSecurityService: PathSecurityService);
     list(relativePath: string): Promise<FileItem[]>;
     getItem(relativePath: string): Promise<FileItem | null>;
+    openReadStream(relativePath: string): Promise<StoredFileContent>;
     createFolder(parentRelativePath: string, folderName: string): Promise<FileItem>;
     saveFile(targetRelativePath: string, file: UploadedFileData): Promise<FileItem>;
     rename(targetRelativePath: string, newName: string): Promise<FileItem>;
